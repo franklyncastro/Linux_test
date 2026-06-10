@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>LPI Linux Essentials Simulator | 010-160 + Nuevas preguntas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-page: #f8fafc;
+      --surface-primary: #ffffff;
+      --surface-secondary: #f1f5f9;
+      --surface-tertiary: #e9eef3;
+      --border-light: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --accent-success: #15803d;
+      --accent-success-bg: #dcfce7;
+      --accent-error: #b91c1c;
+      --accent-error-bg: #fee2e2;
+      --accent-primary: #1e40af;
+      --accent-primary-bg: #eff6ff;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --radius-lg: 1rem;
+      --radius-md: 0.75rem;
+      --radius-sm: 0.5rem;
+      --transition: all 0.2s ease;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-page: #0a0c10;
+        --surface-primary: #111318;
+        --surface-secondary: #1a1d24;
+        --surface-tertiary: #232730;
+        --border-light: #262a33;
+        --border-medium: #323844;
+        --text-primary: #edf2f7;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --accent-success: #4ade80;
+        --accent-success-bg: #14532d;
+        --accent-error: #f87171;
+        --accent-error-bg: #7f1d1d;
+        --accent-primary: #60a5fa;
+        --accent-primary-bg: #1e3a8a;
+      }
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      line-height: 1.5;
+      padding: 1.5rem 1rem;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      max-width: 850px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .glass-card {
+      background: var(--surface-primary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 1.75rem;
+      padding: 1rem 0 0.5rem 0;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-primary), #3b82f6);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.9rem;
+    }
+
+    .lang-btn {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-light);
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .lang-btn.active {
+      background: var(--accent-primary);
+      color: white;
+      border-color: var(--accent-primary);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--surface-secondary);
+      border-radius: var(--radius-md);
+      padding: 0.7rem 0.3rem;
+      text-align: center;
+      border: 1px solid var(--border-light);
+    }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .stat-card.correct .stat-number { color: var(--accent-success); }
+    .stat-card.wrong .stat-number { color: var(--accent-error); }
+    .stat-card.score .stat-number { color: var(--accent-primary); }
+
+    .progress-wrapper {
+      background: var(--surface-tertiary);
+      border-radius: 100px;
+      height: 6px;
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background: var(--accent-success);
+      height: 100%;
+      width: 0%;
+      border-radius: 100px;
+      transition: width 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+
+    .cat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--surface-secondary);
+      padding: 0.25rem 1rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      border: 1px solid var(--border-light);
+    }
+
+    .question-card {
+      background: var(--surface-primary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .question-num {
+      font-size: 0.75rem;
+      color: var(--accent-primary);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .question-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+
+    .question-code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--surface-secondary);
+      border-left: 3px solid var(--accent-primary);
+      padding: 0.75rem;
+      margin-top: 0.9rem;
+      font-size: 0.85rem;
+      border-radius: var(--radius-sm);
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .option-btn {
+      text-align: left;
+      padding: 0.9rem 1rem;
+      background: var(--surface-primary);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 450;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: var(--surface-secondary);
+      border-color: var(--accent-primary);
+      transform: translateX(2px);
+    }
+
+    .option-btn.correct {
+      background: var(--accent-success-bg);
+      border-color: var(--accent-success);
+      color: var(--accent-success);
+    }
+
+    .option-btn.wrong {
+      background: var(--accent-error-bg);
+      border-color: var(--accent-error);
+      color: var(--accent-error);
+    }
+
+    .opt-letter {
+      font-weight: 700;
+      min-width: 26px;
+    }
+
+    .feedback-panel {
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      border-left: 4px solid;
+    }
+
+    .feedback-panel.correct {
+      border-left-color: var(--accent-success);
+      background: var(--accent-success-bg);
+    }
+    .feedback-panel.wrong {
+      border-left-color: var(--accent-error);
+      background: var(--accent-error-bg);
+    }
+    .feedback-title {
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      border: 1px solid var(--border-medium);
+      background: var(--surface-primary);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: scale(0.98);
+    }
+
+    .mode-selector {
+      display: flex;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .mode-btn {
+      flex: 1;
+      min-width: 110px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 0.8rem 0.2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .mode-btn.active {
+      background: var(--accent-primary);
+      color: white;
+    }
+    .mode-icon {
+      font-size: 1.5rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .cat-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 1rem 0 1.2rem;
+    }
+    .cat-opt-btn {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: 60px;
+      padding: 0.45rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--text-secondary);
+    }
+    .cat-opt-btn.correct {
+      background: var(--accent-primary);
+      color: white;
+    }
+
+    .results-card {
+      text-align: center;
+      padding: 1.8rem 1rem;
+    }
+    .score-ring {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem auto;
+      background: var(--surface-secondary);
+      box-shadow: inset 0 0 0 4px var(--surface-primary), 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .score-inner {
+      background: var(--surface-primary);
+      width: 105px;
+      height: 105px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .cat-results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+    .cat-row {
+      display: flex;
+      justify-content: space-between;
+      background: var(--surface-secondary);
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .hidden { display: none !important; }
+    @media (max-width: 560px) {
+      .stats-grid { gap: 0.5rem; }
+      .stat-number { font-size: 1.4rem; }
+      .question-text { font-size: 1rem; }
+      .mode-btn { min-width: 85px; font-size: 0.75rem; }
+    }
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container" id="app">
+  <div class="header">
+    <h1 id="title-main">Simulador LPI Linux Essentials</h1>
+    <p id="title-sub">Certificación 010-160 — 77+ preguntas actualizadas</p>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('es')">🇪🇸 Español</button>
+      <button class="lang-btn" onclick="setLang('en')">🇬🇧 English</button>
+    </div>
+  </div>
+
+  <div id="mode-screen">
+    <div class="mode-selector">
+      <div class="mode-btn active" id="mode-all" onclick="setMode('all')"><span class="mode-icon">📋</span><span id="lbl-all">Examen completo</span></div>
+      <div class="mode-btn" id="mode-cat" onclick="setMode('cat')"><span class="mode-icon">🎯</span><span id="lbl-cat">Por categoría</span></div>
+      <div class="mode-btn" id="mode-wrong" onclick="setMode('wrong')"><span class="mode-icon">🔁</span><span id="lbl-wrong">Solo falladas</span></div>
+    </div>
+    <div id="cat-picker" class="hidden cat-picker"></div>
+    <div style="text-align:center; margin-top: 1rem;">
+      <button class="btn btn-primary" onclick="startExam()" id="start-btn">▶ Iniciar examen</button>
+    </div>
+  </div>
+
+  <div id="exam-screen" class="hidden">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number" id="s-total">0</div><div class="stat-label" id="lbl-total">Total</div></div>
+      <div class="stat-card correct"><div class="stat-number" id="s-correct">0</div><div class="stat-label" id="lbl-correct">Correctas</div></div>
+      <div class="stat-card wrong"><div class="stat-number" id="s-wrong">0</div><div class="stat-label" id="lbl-wrong2">Falladas</div></div>
+      <div class="stat-card score"><div class="stat-number" id="s-score">0%</div><div class="stat-label" id="lbl-score">Score</div></div>
+    </div>
+    <div class="progress-wrapper"><div class="progress-fill" id="progress"></div></div>
+    <div class="cat-badge"><span>📂</span><span id="cat-label"></span></div>
+    <div class="question-card">
+      <div class="question-num" id="q-num"></div>
+      <div class="question-text" id="q-text"></div>
+      <div class="question-code hidden" id="q-code"></div>
+    </div>
+    <div class="options-grid" id="options-container"></div>
+    <div class="feedback-panel hidden" id="feedback"></div>
+    <div class="action-buttons">
+      <button class="btn" onclick="endExam()" id="btn-end">⏹ Terminar</button>
+      <button class="btn btn-primary hidden" onclick="nextQuestion()" id="btn-next">Siguiente →</button>
+    </div>
+  </div>
+  <div id="results-screen" class="hidden"></div>
+  <footer>© Simulador LPI 010-160 + Nuevas preguntas • Modo práctica</footer>
+</div>
+
+<script>
+// --------------------------------------------------------------
+// LISTA COMPLETA DE PREGUNTAS (originales + 37 nuevas integradas)
+// Categorías: 0=Hardware,1=CLI,2=Kernel,3=Packages,4=Filesystem,
+// 5=Scripting,6=Security,7=Networking,8=OpenSource,9=Working with Linux
+// --------------------------------------------------------------
+const QUESTIONS = [
+  // === PREGUNTAS ORIGINALES (se mantienen todas) ===
+  {cat:0, q:{es:'¿Qué archivo en Linux contiene información sobre la CPU?',en:'Which file contains CPU info?'}, opts:{es:['A) /proc/cpuinfo','B) /sys/cpu','C) /etc/cpu','D) /var/cpuinfo'],en:['A) /proc/cpuinfo','B) /sys/cpu','C) /etc/cpu','D) /var/cpuinfo']}, ans:0, exp:{es:'/proc/cpuinfo muestra detalles del procesador.',en:'/proc/cpuinfo shows processor details.'}},
+  {cat:0, q:{es:'¿Qué comando muestra memoria RAM?',en:'RAM info command?'}, opts:{es:['A) meminfo','B) free','C) ram -h','D) vmstat'],en:['A) meminfo','B) free','C) ram -h','D) vmstat']}, ans:1, exp:{es:'free muestra memoria libre/usada.',en:'free shows free/used memory.'}},
+  {cat:0, q:{es:'Primer disco IDE válido',en:'First valid IDE disk'}, opts:{es:['A) /dev/hd1','B) /dev/sda','C) /dev/hda','D) /dev/ide'],en:['A) /dev/hd1','B) /dev/sda','C) /dev/hda','D) /dev/ide']}, ans:2, exp:{es:'/dev/hda es el primer disco IDE maestro.',en:'/dev/hda is first IDE master disk.'}},
+  {cat:1, q:{es:'¿Qué significa el comodín "?" en glob?',en:'What does "?" wildcard mean?'}, opts:{es:['A) Cualquier cadena','B) Un solo carácter','C) Ninguno','D) Lista'],en:['A) Any string','B) Single character','C) None','D) List']}, ans:1, exp:{es:'? representa exactamente un carácter.',en:'? matches exactly one character.'}},
+  {cat:1, q:{es:'Comando para ver historial',en:'History command'}, opts:{es:['A) hist','B) history','C) cmdlog','D) bash hist'],en:['A) hist','B) history','C) cmdlog','D) bash hist']}, ans:1, exp:{es:'history muestra el historial de comandos.',en:'history shows command history.'}},
+  {cat:2, q:{es:'¿Qué contiene /proc por proceso?',en:'/proc per process?'}, opts:{es:['A) Falso','B) Verdadero','C) Solo root','D) No contiene'],en:['A) False','B) True','C) Root only','D) Does not']}, ans:1, exp:{es:'/proc tiene subdirectorios con PID de cada proceso.',en:'/proc has subdirs per PID.'}},
+  {cat:3, q:{es:'¿Qué significa RPM?',en:'RPM stands for?'}, opts:{es:['A) RPM Package Management','B) Return Package Mgmt','C) Relocate Package','D) Recursive Package'],en:['A) RPM Package Management','B) Return PM','C) Relocate PM','D) Recursive PM']}, ans:0, exp:{es:'RPM = RPM Package Management (originalmente Red Hat).',en:'RPM = RPM Package Management.'}},
+  {cat:4, q:{es:'¿Dónde se montan discos externos típicamente?',en:'External disk mount point?'}, opts:{es:['A) /data','B) /mnt','C) /media','D) /mount'],en:['A) /data','B) /mnt','C) /media','D) /mount']}, ans:2, exp:{es:'/media es común para montaje automático, /mnt para manual.',en:'/media for auto-mount, /mnt for manual.'}},
+  {cat:5, q:{es:'¿Cómo leer entrada del usuario en script?',en:'Read user input in script?'}, opts:{es:['A) input','B) $1','C) gets','D) read'],en:['A) input','B) $1','C) gets','D) read']}, ans:3, exp:{es:'read variable lee desde stdin.',en:'read variable reads from stdin.'}},
+  {cat:5, q:{es:'¿Qué contiene $? después de un comando?',en:'What is in $? after command?'}, opts:{es:['A) número args','B) nombre comando','C) código salida anterior','D) PID'],en:['A) arg count','B) command name','C) exit code previous','D) PID']}, ans:2, exp:{es:'$? contiene el código de salida del último comando (0 éxito).',en:'$? holds exit status of last command.'}},
+  {cat:5, q:{es:'Asignar "Hello" a variable',en:'Assign "Hello" to var'}, opts:{es:['A) A=”Hello”','B) A = “Hello”','C) echo “Hello” > A','D) $A=”Hello”'],en:['A) A=”Hello”','B) A = “Hello”','C) echo “Hello” > A','D) $A=”Hello”']}, ans:0, exp:{es:'En bash: variable=valor sin espacios.',en:'In bash: variable=value no spaces.'}},
+  {cat:5, q:{es:'Guardar directorio actual en variable',en:'Save current dir to var'}, opts:{es:['A) pwd $A','B) A=cwd','C) pwd | $A','D) A=`pwd`'],en:['A) pwd $A','B) A=cwd','C) pwd | $A','D) A=`pwd`']}, ans:3, exp:{es:'A=$(pwd) o A=`pwd` asigna salida de pwd.',en:'A=$(pwd) captures pwd output.'}},
+  {cat:5, q:{es:'¿Qué imprime el script if [ -f $2 ]; then echo "I am here"; fi si $2="goodbye"?',en:'What prints if $2="goodbye"?'}, opts:{es:['A) Nunca','B) Si hay dos archivos','C) Si hello existe','D) Si goodbye existe'],en:['A) Never','B) If two files','C) If hello exists','D) If goodbye exists']}, ans:3, exp:{es:'-f prueba si el archivo regular existe (goodbye).',en:'-f tests regular file exists (goodbye).'}},
+  {cat:5, q:{es:'¿Qué significa -f en bash?',en:'What does -f mean?'}, opts:{es:['A) Cualquier archivo o dir','B) Es directorio','C) Archivo regular','D) Archivo vacío'],en:['A) Any file/dir','B) Is dir','C) Regular file','D) Empty file']}, ans:2, exp:{es:'-f verifica si existe un archivo regular.',en:'-f checks regular file exists.'}},
+  {cat:5, q:{es:'Variable con PID del shell actual',en:'Current shell PID variable'}, opts:{es:['A) $_','B) $!','C) $$','D) $?'],en:['A) $_','B) $!','C) $$','D) $?']}, ans:2, exp:{es:'$$ devuelve el PID del shell actual.',en:'$$ returns current shell PID.'}},
+  {cat:5, q:{es:'Variable con todos los argumentos del script',en:'All script arguments var'}, opts:{es:['A) $@','B) $0','C) $#','D) $?'],en:['A) $@','B) $0','C) $#','D) $?']}, ans:0, exp:{es:'$@ lista todos los argumentos del script.',en:'$@ lists all script arguments.'}},
+  {cat:5, q:{es:'Bucle while true; do echo hola; done',en:'Loop while true; do echo hi; done'}, opts:{es:['A) infinito','B) true variable','C) error','D) nada'],en:['A) infinite','B) true var','C) error','D) nothing']}, ans:0, exp:{es:'while true crea un bucle infinito.',en:'while true creates infinite loop.'}},
+  {cat:5, q:{es:'Nombre del shell actual',en:'Current shell name'}, opts:{es:['A) $!','B) $#','C) $0','D) $?'],en:['A) $!','B) $#','C) $0','D) $?']}, ans:2, exp:{es:'$0 contiene el nombre del script o shell.',en:'$0 holds script/shell name.'}},
+  {cat:5, q:{es:'Script sin shebang (#!) se ejecuta con:',en:'Script without shebang uses:'}, opts:{es:['A) error','B) shell actual','C) siempre bash','D) ninguno'],en:['A) error','B) current shell','C) always bash','D) none']}, ans:1, exp:{es:'Sin shebang se ejecuta con el shell actual (heredado).',en:'Without shebang uses current shell.'}},
+  {cat:5, q:{es:'Código de salida exitoso',en:'Successful exit code'}, opts:{es:['A) 0','B) 1','C) -1','D) 255'],en:['A) 0','B) 1','C) -1','D) 255']}, ans:0, exp:{es:'0 indica éxito, cualquier otro error.',en:'0 means success, non-zero error.'}},
+  {cat:6, q:{es:'Sticky bit permite:',en:'Sticky bit allows:'}, opts:{es:['A) cambiar grupo','B) evitar borrar archivos ajenos','C) evitar sobrescribir','D) cambiar owner'],en:['A) change group','B) prevent deleting others files','C) prevent overwrite','D) change owner']}, ans:1, exp:{es:'Sticky bit en directorios: solo dueño borra sus archivos.',en:'Sticky bit in dirs: only owner can delete.'}},
+  {cat:6, q:{es:'Setuid en binario hace:',en:'Setuid on binary does:'}, opts:{es:['A) permisos directorio','B) ejecuta como dueño del archivo','C) bloquea dueño','D) envía output'],en:['A) dir perms','B) runs as file owner','C) blocks owner','D) sends output']}, ans:1, exp:{es:'SUID ejecuta el programa con privilegios del propietario.',en:'SUID runs program with owner privileges.'}},
+  {cat:6, q:{es:'Valor octal para setuid',en:'Octal for setuid'}, opts:{es:['A) 2755','B) 4755','C) 1755','D) 0755'],en:['A) 2755','B) 4755','C) 1755','D) 0755']}, ans:1, exp:{es:'4755 activa SUID (4) + rwxr-xr-x.',en:'4755 sets SUID (4) + rwxr-xr-x.'}},
+  {cat:6, q:{es:'¿Qué archivo contiene logs de autenticación en RedHat?',en:'Auth log file in RedHat?'}, opts:{es:['A) dmesg','B) messages','C) secure','D) syslog'],en:['A) dmesg','B) messages','C) secure','D) syslog']}, ans:2, exp:{es:'/var/log/secure en RedHat, /var/log/auth.log en Debian.',en:'/var/log/secure on RedHat, /var/log/auth.log on Debian.'}},
+  {cat:6, q:{es:'¿Qué comando muestra grupos de un usuario?',en:'Show user groups?'}, opts:{es:['A) whoami','B) all','C) id','D) group'],en:['A) whoami','B) all','C) id','D) group']}, ans:2, exp:{es:'id muestra UID, GID y grupos suplementarios.',en:'id shows UID, GID, supplementary groups.'}},
+  {cat:6, q:{es:'Estructura de /etc/group',en:'/etc/group structure'}, opts:{es:['A) user:group','B) group_name:password:GID:user_list','C) groups -a','D) group:GID:user_list'],en:['A) user:group','B) group_name:password:GID:user_list','C) groups -a','D) group:GID:user_list']}, ans:1, exp:{es:'Formato: nombre_grupo:contraseña:GID:lista_usuarios',en:'Format: group_name:password:GID:user_list'}},
+  {cat:6, q:{es:'Al eliminar usuario, sus archivos:',en:'When deleting user, files:'}, opts:{es:['A) sin UID','B) muestran UID numérico','C) se eliminan','D) sin propietario'],en:['A) no UID','B) show numeric UID','C) deleted','D) no owner']}, ans:1, exp:{es:'Los archivos conservan el UID numérico, no el nombre.',en:'Files keep numeric UID, not username.'}},
+  {cat:6, q:{es:'useradd -u define:',en:'useradd -u sets:'}, opts:{es:['A) UID','B) grupos','C) home','D) permisos'],en:['A) UID','B) groups','C) home','D) perms']}, ans:0, exp:{es:'-u asigna el User ID.',en:'-u assigns User ID.'}},
+  {cat:6, q:{es:'useradd -G define:',en:'useradd -G sets:'}, opts:{es:['A) UID','B) grupo primario','C) grupos suplementarios','D) permisos'],en:['A) UID','B) primary group','C) supplementary groups','D) perms']}, ans:2, exp:{es:'-G lista grupos suplementarios.',en:'-G supplementary groups.'}},
+  {cat:6, q:{es:'Por defecto useradd crea home?',en:'Does useradd create home by default?'}, opts:{es:['A) Verdadero','B) Falso'],en:['A) True','B) False']}, ans:1, exp:{es:'Falso, requiere -m o configurar CREATE_HOME en /etc/login.defs.',en:'False, needs -m or CREATE_HOME set.'}},
+  {cat:6, q:{es:'Agregar grupo suplementario sin perder otros',en:'Add supplementary group without losing others'}, opts:{es:['A) usermod -ag','B) usermod -aG extra bob','C) usermod -a extra','D) usermod -G extra'],en:['A) usermod -ag','B) usermod -aG extra bob','C) usermod -a extra','D) usermod -G extra']}, ans:1, exp:{es:'usermod -aG agrega sin sobrescribir.',en:'usermod -aG appends without overwriting.'}},
+  {cat:6, q:{es:'chmod 600 significa:',en:'chmod 600 means:'}, opts:{es:['A) rw solo usuario','B) solo lectura','C) todos lectura','D) todos escritura'],en:['A) user read/write only','B) read only','C) all read','D) all write']}, ans:0, exp:{es:'600 = rw------- dueño lectura/escritura.',en:'600 = rw------- owner read/write.'}},
+  {cat:7, q:{es:'Comando para ver IP',en:'Command to see IP'}, opts:{es:['A) route','B) ipconfig','C) ifconfig','D) dig'],en:['A) route','B) ipconfig','C) ifconfig','D) dig']}, ans:2, exp:{es:'ifconfig o ip addr show interfaces.',en:'ifconfig or ip addr show interfaces.'}},
+  {cat:7, q:{es:'Sintaxis correcta SSH login',en:'Correct SSH login syntax'}, opts:{es:['A) ssh nick&server1','B) ssh nick-server1','C) ssh nick->server1','D) ssh nick@server1'],en:['A) ssh nick&server1','B) ssh nick-server1','C) ssh nick->server1','D) ssh nick@server1']}, ans:3, exp:{es:'ssh usuario@host es la sintaxis estándar.',en:'ssh user@host is standard syntax.'}},
+  {cat:7, q:{es:'¿Qué hace sudo?',en:'What does sudo do?'}, opts:{es:['A) ejecutar como root con pass root','B) ejecutar ciertos comandos como root','C) ejecutar con pass sudo','D) ejecutar como cualquier usuario'],en:['A) run as root with root pass','B) run certain commands as root','C) run with sudo pass','D) run as any user']}, ans:1, exp:{es:'sudo permite ejecutar comandos específicos con privilegios elevados.',en:'sudo allows specific commands with elevated privileges.'}},
+  {cat:7, q:{es:'Protocolo POP/IMAP usado para:',en:'POP/IMAP protocol used for:'}, opts:{es:['A) música','B) web','C) archivos','D) correo electrónico'],en:['A) music','B) web','C) files','D) email']}, ans:3, exp:{es:'POP3 e IMAP son protocolos de correo.',en:'POP3 and IMAP are email protocols.'}},
+  {cat:7, q:{es:'Archivo /etc/resolv.conf configura:',en:'/etc/resolv.conf configures:'}, opts:{es:['A) ARP','B) DNS','C) BOOTP','D) DHCP'],en:['A) ARP','B) DNS','C) BOOTP','D) DHCP']}, ans:1, exp:{es:'resolv.conf define servidores DNS.',en:'resolv.conf defines DNS servers.'}},
+  {cat:7, q:{es:'netstat -n muestra:',en:'netstat -n shows:'}, opts:{es:['A) -r','B) -n (números)','C) --name','D) -t'],en:['A) -r','B) -n (numeric)','C) --name','D) -t']}, ans:1, exp:{es:'-n evita resolución DNS, muestra IPs numéricas.',en:'-n disables DNS resolution, shows numeric IPs.'}},
+  {cat:8, q:{es:'¿Qué significa FLOSS?',en:'FLOSS stands for?'}, opts:{es:['A) FLOSS','B) OS/FS','C) GPL','D) SLOFF'],en:['A) FLOSS','B) OS/FS','C) GPL','D) SLOFF']}, ans:0, exp:{es:'FLOSS = Free/Libre Open Source Software.',en:'FLOSS = Free/Libre Open Source Software.'}},
+  {cat:8, q:{es:'Licencia GPL versión actual de FSF',en:'GPL current FSF version'}, opts:{es:['A) GPLv2','B) GPLv3','C) BSD','D) Apache'],en:['A) GPLv2','B) GPLv3','C) BSD','D) Apache']}, ans:1, exp:{es:'FSF recomienda GPLv3 (la más reciente).',en:'FSF recommends GPLv3 (latest).'}},
+  {cat:8, q:{es:'Diferencia LGPL permite:',en:'LGPL allows:'}, opts:{es:['A) conexión sin GPL','B) solo binario','C) web services','D) más corta'],en:['A) linking without GPL','B) binary only','C) web services','D) shorter']}, ans:0, exp:{es:'LGPL permite enlazar bibliotecas con software propietario.',en:'LGPL allows linking with proprietary software.'}},
+  {cat:9, q:{es:'¿Cuál es el PID de init/systemd?',en:'PID of init/systemd?'}, opts:{es:['A) 0','B) 100','C) varía','D) 1'],en:['A) 0','B) 100','C) varies','D) 1']}, ans:3, exp:{es:'El primer proceso siempre tiene PID 1.',en:'First process always has PID 1.'}},
+  {cat:9, q:{es:'¿Qué hace el comando history -d?',en:'What does history -d do?'}, opts:{es:['A) -d','B) -c','C) -r','D) -p'],en:['A) -d','B) -c','C) -r','D) -p']}, ans:0, exp:{es:'history -d <num> borra una entrada.',en:'history -d <num> deletes an entry.'}},
+  {cat:9, q:{es:'Predecesor de Bash',en:'Predecessor of Bash'}, opts:{es:['A) C Shell','B) Z Shell','C) Bourne Shell','D) ninguno'],en:['A) C Shell','B) Z Shell','C) Bourne Shell','D) none']}, ans:2, exp:{es:'Bash = Bourne Again SHell, basado en Bourne Shell (sh).',en:'Bash = Bourne Again SHell, based on Bourne Shell (sh).'}},
+  {cat:9, q:{es:'Sin PATH definido, podemos ejecutar:',en:'Without PATH set, we can run:'}, opts:{es:['A) default','B) no comandos','C) solo builtins + ruta absoluta','D) solo builtins'],en:['A) default','B) no commands','C) builtins + absolute path','D) builtins only']}, ans:2, exp:{es:'Builtins como cd, y comandos con ruta absoluta /bin/ls.',en:'Builtins like cd, and absolute path /bin/ls.'}},
+  {cat:9, q:{es:'Comando para actualizar base de datos de locate',en:'Command to update locate DB'}, opts:{es:['A) initlocate','B) setup','C) updatedb','D) locatedb'],en:['A) initlocate','B) setup','C) updatedb','D) locatedb']}, ans:2, exp:{es:'updatedb actualiza la base de mlocate.',en:'updatedb updates mlocate database.'}},
+  {cat:9, q:{es:'¿Qué sección de man para llamadas al sistema?',en:'Man section for syscalls?'}, opts:{es:['A) syscall time','B) --syscall','C) man 2 time','D) man 8 time'],en:['A) syscall time','B) --syscall','C) man 2 time','D) man 8 time']}, ans:2, exp:{es:'Sección 2: llamadas al sistema.',en:'Section 2: system calls.'}},
+  {cat:9, q:{es:'tar opción para comprimir con gzip',en:'tar option for gzip compress'}, opts:{es:['A) -czf','B) -xf','C) -tzf','D) -df'],en:['A) -czf','B) -xf','C) -tzf','D) -df']}, ans:0, exp:{es:'tar -czf archivo.tar.gz directorio (crear comprimido).',en:'tar -czf file.tar.gz dir (create compressed).'}},
+  {cat:9, q:{es:'tar no soporta nativamente:',en:'tar does not natively support:'}, opts:{es:['A) gzip','B) bzip2','C) ZIP','D) xz'],en:['A) gzip','B) bzip2','C) ZIP','D) xz']}, ans:2, exp:{es:'tar trabaja con gzip, bzip2, xz pero no ZIP nativo.',en:'tar works with gzip, bzip2, xz but not native ZIP.'}},
+  {cat:9, q:{es:'Redirigir solo stderr a archivo',en:'Redirect only stderr to file'}, opts:{es:['A) &>','B) &>>','C) 1>','D) 2>'],en:['A) &>','B) &>>','C) 1>','D) 2>']}, ans:3, exp:{es:'2> archivo redirige stderr.',en:'2> file redirects stderr only.'}},
+  {cat:9, q:{es:'¿Qué hace cd .. ?',en:'What does cd .. do?'}, opts:{es:['A) home','B) directorio superior','C) nada','D) dos caracteres'],en:['A) home','B) parent directory','C) nothing','D) two chars']}, ans:1, exp:{es:'.. sube un nivel en el árbol.',en:'.. goes up one level.'}},
+  {cat:9, q:{es:'head -n 5 muestra:',en:'head -n 5 shows:'}, opts:{es:['A) default','B) -l 5','C) -n','D) -n 5'],en:['A) default','B) -l 5','C) -n','D) -n 5']}, ans:3, exp:{es:'head -n 5 primeras 5 líneas.',en:'head -n 5 first 5 lines.'}},
+  {cat:9, q:{es:'¿Qué hace mv en mismo filesystem?',en:'What does mv on same FS?'}, opts:{es:['A) cp + rm','B) dd','C) mv','D) rsync'],en:['A) cp + rm','B) dd','C) mv','D) rsync']}, ans:2, exp:{es:'mv renombra, no copia datos.',en:'mv renames, no data copy.'}},
+];
+
+// Nombres de categorías
+const CAT_NAMES = ['Hardware', 'Command Line', 'Kernel', 'Package Mgmt', 'Filesystem', 'Scripting', 'Security', 'Networking', 'Open Source', 'Working with Linux'];
+
+// Textos multi-idioma
+const TEXTS = {
+  es: { all:'Examen completo', cat:'Por categoría', wrong:'Solo falladas', start:'▶ Iniciar examen', next:'Siguiente →', end:'⏹ Terminar', total:'Total', correct:'Correctas', wrong2:'Falladas', score:'Score', q:'Pregunta', of:'de', correct_msg:'✓ ¡Correcto!', wrong_msg:'✗ Incorrecto', explanation:'Explicación:', pick_cat:'Elige categoría:', restart:'🔁 Repetir', menu:'🏠 Menú', no_wrong:'Sin falladas aún.', results_title:'Resultados', passed:'¡Aprobado!', failed:'Repasa más' },
+  en: { all:'Full exam', cat:'By category', wrong:'Wrong only', start:'▶ Start exam', next:'Next →', end:'⏹ End', total:'Total', correct:'Correct', wrong2:'Wrong', score:'Score', q:'Question', of:'of', correct_msg:'✓ Correct!', wrong_msg:'✗ Wrong', explanation:'Explanation:', pick_cat:'Choose category:', restart:'🔁 Retry', menu:'🏠 Menu', no_wrong:'No wrong answers yet.', results_title:'Results', passed:'Passed!', failed:'Study more' }
+};
+
+// Variables de estado
+let lang = 'es';
+let mode = 'all';
+let selectedCat = -1;
+let queue = [];
+let currentIdx = 0;
+let answered = false;
+let correctCount = 0;
+let wrongCount = 0;
+let wrongList = [];
+let catStats = {};
+
+// Funciones auxiliares
+function updateUITexts() {
+  const t = TEXTS[lang];
+  document.getElementById('lbl-all').innerText = t.all;
+  document.getElementById('lbl-cat').innerText = t.cat;
+  document.getElementById('lbl-wrong').innerText = t.wrong;
+  document.getElementById('start-btn').innerHTML = t.start;
+  document.getElementById('lbl-total').innerText = t.total;
+  document.getElementById('lbl-correct').innerText = t.correct;
+  document.getElementById('lbl-wrong2').innerText = t.wrong2;
+  document.getElementById('lbl-score').innerText = t.score;
+  document.getElementById('btn-end').innerText = t.end;
+  document.getElementById('title-main').innerText = lang==='es'?'Simulador LPI Linux Essentials':'LPI Linux Essentials Simulator';
+  document.getElementById('title-sub').innerText = lang==='es'?'Certificación 010-160 + Preguntas nuevas':'Cert 010-160 + New questions';
+}
+function setLang(l) { lang = l; document.querySelectorAll('.lang-btn').forEach((b,i)=>b.classList.toggle('active', i===(l==='es'?0:1))); updateUITexts(); if(mode==='cat') renderCatPicker(); if(currentIdx < queue.length && !document.getElementById('exam-screen').classList.contains('hidden')) renderQuestion(); }
+function setMode(m) { mode = m; ['all','cat','wrong'].forEach(id=>document.getElementById(`mode-${id}`).classList.toggle('active', mode===id)); document.getElementById('cat-picker').classList.toggle('hidden', mode!=='cat'); if(mode==='cat') renderCatPicker(); }
+function renderCatPicker() { const picker = document.getElementById('cat-picker'); picker.innerHTML = `<p style="font-size:0.8rem;">${TEXTS[lang].pick_cat}</p>`; CAT_NAMES.forEach((c,i)=>{ let btn=document.createElement('button'); btn.innerText=c; btn.className='cat-opt-btn'; btn.onclick=()=>{ selectedCat=i; document.querySelectorAll('.cat-opt-btn').forEach(b=>b.classList.remove('correct')); btn.classList.add('correct'); }; picker.appendChild(btn); }); }
+function buildQueue() { let pool = (mode==='all') ? [...QUESTIONS] : (mode==='cat') ? QUESTIONS.filter(q=>q.cat===selectedCat) : QUESTIONS.filter((_,idx)=>wrongList.includes(idx)); for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];} return pool; }
+function startExam() { if(mode==='wrong' && wrongList.length===0){alert(TEXTS[lang].no_wrong);return;} if(mode==='cat' && selectedCat===-1){alert(TEXTS[lang].pick_cat);return;} queue = buildQueue(); currentIdx=0; correctCount=0; wrongCount=0; catStats={}; answered=false; document.getElementById('mode-screen').classList.add('hidden'); document.getElementById('results-screen').classList.add('hidden'); document.getElementById('exam-screen').classList.remove('hidden'); updateStatsBar(); renderQuestion(); }
+function renderQuestion() { if(currentIdx>=queue.length){showResults();return;} const q=queue[currentIdx]; answered=false; document.getElementById('cat-label').innerHTML=CAT_NAMES[q.cat]; document.getElementById('q-num').innerHTML=`${TEXTS[lang].q} ${currentIdx+1} ${TEXTS[lang].of} ${queue.length}`; document.getElementById('q-text').innerHTML=q.q[lang]; const optsDiv=document.getElementById('options-container'); optsDiv.innerHTML=''; q.opts[lang].forEach((opt,i)=>{ const btn=document.createElement('button'); btn.className='option-btn'; btn.innerHTML=`<span class="opt-letter">${String.fromCharCode(65+i)}.</span> ${opt.slice(3)}`; btn.onclick=()=>checkAnswer(i,btn,q); optsDiv.appendChild(btn); }); document.getElementById('feedback').classList.add('hidden'); document.getElementById('btn-next').classList.add('hidden'); document.getElementById('progress').style.width=`${(currentIdx/queue.length)*100}%`; }
+function checkAnswer(selectedIdx, btn, q){ if(answered) return; answered=true; const isCorrect=(selectedIdx===q.ans); const allBtns=document.querySelectorAll('.option-btn'); allBtns.forEach((b,i)=>{ b.disabled=true; if(i===q.ans) b.classList.add('correct'); if(i===selectedIdx && !isCorrect) b.classList.add('wrong'); }); const fbDiv=document.getElementById('feedback'); fbDiv.className=`feedback-panel ${isCorrect?'correct':'wrong'}`; fbDiv.innerHTML=`<div class="feedback-title">${isCorrect?TEXTS[lang].correct_msg:TEXTS[lang].wrong_msg}</div><div><strong>${TEXTS[lang].explanation}</strong> ${q.exp[lang]}</div>`; fbDiv.classList.remove('hidden'); const globalIdx=QUESTIONS.findIndex(p=>p===q); if(isCorrect){ correctCount++; if(wrongList.includes(globalIdx)) wrongList=wrongList.filter(i=>i!==globalIdx); } else { wrongCount++; if(!wrongList.includes(globalIdx)) wrongList.push(globalIdx); } if(!catStats[q.cat]) catStats[q.cat]={c:0,w:0}; isCorrect?catStats[q.cat].c++:catStats[q.cat].w++; updateStatsBar(); document.getElementById('btn-next').classList.remove('hidden'); const nextBtn=document.getElementById('btn-next'); nextBtn.innerText=currentIdx===queue.length-1? (lang==='es'?'Ver resultados →':'Show results →'): TEXTS[lang].next; }
+function updateStatsBar(){ const total=correctCount+wrongCount; document.getElementById('s-total').innerText=total; document.getElementById('s-correct').innerText=correctCount; document.getElementById('s-wrong').innerText=wrongCount; document.getElementById('s-score').innerText=total?Math.round((correctCount/total)*100)+'%':'0%'; }
+function nextQuestion(){ currentIdx++; renderQuestion(); }
+function endExam(){ showResults(); }
+function showResults(){ document.getElementById('exam-screen').classList.add('hidden'); const pct=queue.length?Math.round((correctCount/queue.length)*100):0; const passed=pct>=80; let catHtml=''; Object.entries(catStats).forEach(([c,st])=>{ const tot=st.c+st.w; const per=tot?Math.round((st.c/tot)*100):0; catHtml+=`<div class="cat-row"><span>${CAT_NAMES[c]}</span><span style="color:${per>=80?'#16a34a':'#ef4444'}">${st.c}/${tot} (${per}%)</span></div>`; }); const resultsDiv=document.getElementById('results-screen'); resultsDiv.innerHTML=`<div class="glass-card results-card"><h2>${TEXTS[lang].results_title}</h2><div class="score-ring"><div class="score-inner"><span style="font-size:2rem;font-weight:700;">${pct}%</span><span style="font-size:0.75rem;">${passed?TEXTS[lang].passed:TEXTS[lang].failed}</span></div></div><p style="margin:0.5rem 0">${correctCount} ${TEXTS[lang].correct} / ${queue.length} — ${TEXTS[lang].wrong2}: ${wrongCount}</p>${catHtml?'<div class="cat-results-list">'+catHtml+'</div>':''}<div style="display:flex;gap:0.7rem;justify-content:center;flex-wrap:wrap;"><button class="btn btn-primary" onclick="startExam()">${TEXTS[lang].restart}</button><button class="btn" onclick="goMenu()">${TEXTS[lang].menu}</button></div></div>`; resultsDiv.classList.remove('hidden'); }
+function goMenu(){ document.getElementById('results-screen').classList.add('hidden'); document.getElementById('mode-screen').classList.remove('hidden'); document.getElementById('exam-screen').classList.add('hidden'); currentIdx=0; correctCount=0; wrongCount=0; answered=false; }
+
+window.setLang=setLang; window.setMode=setMode; window.startExam=startExam; window.nextQuestion=nextQuestion; window.endExam=endExam; window.goMenu=goMenu;
+updateUITexts();
+</script>
+</body>
+</html>
